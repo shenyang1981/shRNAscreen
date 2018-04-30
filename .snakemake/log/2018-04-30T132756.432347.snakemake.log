@@ -1,3 +1,0 @@
-FileNotFoundError in line 18 of /home/shenyan/prog/Torsten/pipeline/counthpreads.sk:
-[Errno 2] No such file or directory: '../sampleList.txt'
-  File "/home/shenyan/prog/Torsten/pipeline/counthpreads.sk", line 18, in <module>
