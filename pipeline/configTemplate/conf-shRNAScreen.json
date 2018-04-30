@@ -1,5 +1,6 @@
 {
-    "SAMPLEINFO": "${SHRNASCREEN_ANADIR}/sampleList.txt",
+    "SAMPLEINFO": "${SAMPLEINFO}",
+
     "INPUTDIR": "${SHRNASCREEN_ANADIR}/input/",
     "HPREADS": "${SHRNASCREEN_ANADIR}/hpreads/",
     "RESULT": "${SHRNASCREEN_ANADIR}/result/",
@@ -14,7 +15,7 @@
     "BATCHSIZE": "5000",
 
     "_comments": "scripts for processing reads",
-    "EXTRACTMATURE": "${SHRNASCREEN_SCRIPTS}/extractMatureSimple.sh",
-    "SUMHPCOUNT": "${SHRNASCREEN_SCRIPTS}/summaryShCount.R",
+    "EXTRACTMATURE": "extractMatureSimple.sh",
+    "SUMHPCOUNT": "summaryShCount.R",
 }
 

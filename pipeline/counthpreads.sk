@@ -30,14 +30,14 @@ rule extractMature:
 	input: 
 		config["INPUTDIR"] + "{seqbatch}/" + "{id}.fastq.gz"
 	output: 
-		config["TRIMDIR"] + "{seqbatch}/" + "{id}.mature.count.txt.gz"
+		config["HPREADS"] + "{seqbatch}/" + "{id}.mature.count.txt.gz"
 	params:
 		hpid=config["HPID"]
 
 	threads: 1
 	shell:
 		"""
-			bash {config[EXTRACTMATURE]} {input} {params.hpid} {output}
+			{config[EXTRACTMATURE]} {input} {params.hpid} {output}
 		"""
 
 
