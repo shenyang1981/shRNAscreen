@@ -162,10 +162,6 @@ snakemake -s pipeline/counthpreads.sk --configfile config-batch3.json -j 32
 ### Submit snakemake jobs to Cluster
 Or run it by submitting to the job scheduler
 
-```
-runsnake.sh pipeline/parcek.sk conf.batch1.json testjob 24 24
-```
-
 ### Results
 
 After running pipeline, results would be stored in "result/" and "hpreads" folder.
