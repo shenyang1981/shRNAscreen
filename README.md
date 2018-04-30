@@ -1,5 +1,5 @@
 # shRNAscreen
-A computational pipeline for analyzing shRNA-Seq generated from in vivo shRNA screen.
+A computational pipeline for analyzing shRNA-Seq generated from in vivo shRNA screen. All 19-mers were firstly extracted from short reads of shRNA-Seq and collapsed, then searching against annotation of shRNAs sequence using R package "stringdist" with mismatches allowed.
 
 ## Getting Started
 
@@ -41,7 +41,7 @@ install.packages("stringdist");
 
 ### Install snakemake
 
-Install snakemake into a virtual environment
+Install snakemake into a virtual environment 
 
 ```
 git clone https://bitbucket.org/snakemake/snakemake.git
@@ -50,6 +50,12 @@ virtualenv -p python3 snakemake
 source snakemake/bin/activate
 python setup.py install
 ```
+Or you can install it using bioconda
+
+```
+conda install snakemake
+```
+
 ### Download scripts and configuration files from github and add directory of scripts into PATH variable 
 
 ```
@@ -62,9 +68,25 @@ You may consider put 'export PATH=${PWD}/scripts:$PATH' <replace ${PWD}/scripts 
 
 * hairpin_ERWOOD_good.txt -- shRNA library annotation
 
+The annotation file includes three columns: shRNA ID, sequence and corresponding gene name (**no header**).
+
+ERWOOD_1 |GAGAAGATCCTCTTCATCA|Gas2
+:--------|:------------------|:-------
+ERWOOD_2 |AGCTTTGACCAGCTTCTTC|Crtc3
+ERWOOD_3 |GCCAGCGAATGCAGTACAT|Vmn1r181
+ERWOOD_4 |AGGACACATCTGCCAGCAT|Msl3
+ERWOOD_5 |AGCAGTACAGGCTGGTACA|Gabrr1
+ERWOOD_6 |AGGCTCATACTCTCCTTCT|Dcpp3
+ERWOOD_7 |GCCAGGATGTGACTCAGAT|Tmem171
+ERWOOD_8 |CATGGAGAAGTACAACATA|Dynll2
+ERWOOD_9 |GCCTTCATCATTGGTGCAG|Kcnj2
+ERWOOD_10|ACAGAAACATTAGAATTAC|Mtpap
+
+
+
 ### Prepare input files and sample information
 
-* sampleList.txt -- information of each sequenced library, including species (**Species**), library ID (**LibID**), sequencing batch (**SeqBatch**), Analytic ID(**AnalyticID**). Samples belonged to **the same AnalyticID** would be selected for searching against a same annotation of shRNAs. 
+* sampleList.txt -- information of each sequenced library, including species (**Species**), library ID (**LibID**), sequencing batch (**SeqBatch**), Analytic ID(**AnalyticID**). Samples belonged to **the same AnalyticID** would be selected for searching against same shRNA annotation. 
 
 The format of sampleList.txt is like:
 
@@ -79,17 +101,17 @@ Mouse  |AML025_rep2|AML025  |batch3
 * input reads files -- Reads are single-end. Name of each file should be {LibID}.fastq.gz (LibID should be the same as in sampleList.txt). All of reads files from the same sequencing batch should be put into one folder named by {SeqBatch} as indiciated in the sampleList.txt. For example, reads files "AML025_rep1.fastq.gz", "AML025_rep2.fastq.gz" can be put into folder "input/AML025/"
 
 ```
-ls input/*
-input/sampleList.txt
-
-input/AML025/:
-
+tree input/
+input/
+├── AML025
+│   ├── AML025_rep1.fastq.gz
+│   └── AML025_rep2.fastq.gz
+└── sampleList.txt
 ```
 
 ### generate config file 
 
 To generate a configuration file for snakemake, several variables need to be defined:
-- SHRNASCREEN_SCRIPTS: path to scripts used in pipeline
 - SHRNASCREEN_ANADIR: path to root folder of analysis
 - SAMPLEINFO: path to the sampleList.txt file
 - HAIRPIN: path to the file of shRNA library annotation
@@ -100,7 +122,7 @@ To generate a configuration file for snakemake, several variables need to be def
 Configuration file can be generated using script **generateConfigureFile.sh**
 
 ```
-SHRNASCREEN_ANADIR=. SAMPLEINFO=./input/sampleList.txt HAIRPIN=hairpin_ERWOOD_good.txt HPID=ERWOOD ANAID=batch3 generateConfigureFile.sh pipeline/configTemplate/conf-shRNAScreen.json > config-batch3.json
+SHRNASCREEN_ANADIR=. SAMPLEINFO=./input/sampleList.txt HAIRPIN=annotation/hairpin_ERWOOD_good.txt HPID=ERWOOD ANAID=batch3 generateConfigureFile.sh pipeline/configTemplate/conf-shRNAScreen.json > config-batch3.json
 ```
 **config-batch3.json**
 
@@ -116,16 +138,16 @@ Now, files should be organized like:
 │   │   ├── AML025_rep1.fastq.gz
 │   │   └── AML025_rep2.fastq.gz
 │   └── sampleList.txt
+├── LICENSE
 ├── pipeline
 │   ├── configTemplate
 │   │   └── conf-shRNAScreen.json
 │   └── counthpreads.sk
+├── README.md
 └── scripts
     ├── extractMatureSimple.sh
     ├── generateConfigureFile.sh
     └── summaryShCount.R
-
-
 ```
 ## Running Pipeline
 
@@ -134,7 +156,7 @@ The pipeline can be simply run in local mode with the configuration file.
 
 ```
 source {$pathtosnakemake}/snakemake/bin/activate
-snakemake -s pipeline/parcel.sk --configfile pipeline/config/conf.batch1.json -j 32
+snakemake -s pipeline/counthpreads.sk --configfile config-batch3.json -j 32
 ```
 
 ### Submit snakemake jobs to Cluster
@@ -146,81 +168,26 @@ runsnake.sh pipeline/parcek.sk conf.batch1.json testjob 24 24
 
 ### Results
 
-After running pipeline, results would be stored in "result/" folder.
+After running pipeline, results would be stored in "result/" and "hpreads" folder.
 
-- **combined_met_output2_wfilters.txt** -- Candidate regions.
-- **combined_met_covinfo.xls** -- Coverage information.
+- **AML025_rep1.mature.count.txt.gz** -- collapsed reads.
+- **AML025_rep1_vs_ERWOOD_hp.result.count.txt** -- shRNA hits.
 
 ```
 .
-├── bedgraphs
-│   └── Transcriptome
-│       └── batch1
-│           ├── control__V1_1__seq1__nor.bedgraph.gz
-│           ├── control__V1_2__seq1__nor.bedgraph.gz
-│           ├── met__V1_met_1__seq1__nor.bedgraph.gz
-│           └── met__V1_met_2__seq1__nor.bedgraph.gz
-├── coverageInfo
-│   └── Transcriptome
-│       └── seq1
-│           ├── V1_1.cov.txt.gz
-│           ├── V1_2.cov.txt.gz
-│           ├── V1_met_1.cov.txt.gz
-│           └── V1_met_2.cov.txt.gz
-├── mappedResult
-│   └── Transcriptome
-│       ├── batch1
-│       │   └── mapSummary.txt
-│       └── seq1
-│           ├── V1_1.trim.fastq.genome_mapping_best.sort.bam
-│           ├── V1_1.trim.fastq.genome_mapping_best.sort.bam.bai
-│           ├── V1_1.trim.fastq.genome_mapping.log
-│           ├── V1_1.trim.fastq.genome_mapping.summary
-│           ├── V1_2.trim.fastq.genome_mapping_best.sort.bam
-│           ├── V1_2.trim.fastq.genome_mapping_best.sort.bam.bai
-│           ├── V1_2.trim.fastq.genome_mapping.log
-│           ├── V1_2.trim.fastq.genome_mapping.summary
-│           ├── V1_met_1.trim.fastq.genome_mapping_best.sort.bam
-│           ├── V1_met_1.trim.fastq.genome_mapping_best.sort.bam.bai
-│           ├── V1_met_1.trim.fastq.genome_mapping.log
-│           ├── V1_met_1.trim.fastq.genome_mapping.summary
-│           ├── V1_met_2.trim.fastq.genome_mapping_best.sort.bam
-│           ├── V1_met_2.trim.fastq.genome_mapping_best.sort.bam.bai
-│           ├── V1_met_2.trim.fastq.genome_mapping.log
-│           └── V1_met_2.trim.fastq.genome_mapping.summary
-├── PARCEL
-│   └── Transcriptome
-│       └── batch1
-│           ├── allcov.txt.gz
-│           ├── allcov.wide.min2.txt.gz
-│           ├── combined_met_covinfo.xls
-│           ├── combined_met_output2_wfilters.Rdata
-│           ├── combined_met_output2_wfilters.txt
-│           ├── combined_v1all.Rdata
-│           ├── covinfo_met.Rdata
-│           ├── edgeR_met_sf.Rdata
-│           ├── etTable_met.Rdata
-│           └── fastq2_met_output10.Rdata
-├── qualityCheck
-│   └── batch1
-│       ├── all.Rdata
-│       └── processingSummary.xls
-└── trimmedFastq
-    ├── batch1
-    │   └── trimSummary.txt
-    └── seq1
-        ├── read.trim.V1_1.log
-        ├── read.trim.V1_1.log.sum
-        ├── read.trim.V1_2.log
-        ├── read.trim.V1_2.log.sum
-        ├── read.trim.V1_met_1.log
-        ├── read.trim.V1_met_1.log.sum
-        ├── read.trim.V1_met_2.log
-        ├── read.trim.V1_met_2.log.sum
-        ├── V1_1.trim.fastq.gz
-        ├── V1_2.trim.fastq.gz
-        ├── V1_met_1.trim.fastq.gz
-        └── V1_met_2.trim.fastq.gz
+hpreads/
+└── AML025
+    ├── AML025_rep1.mature.count.txt.gz
+    └── AML025_rep2.mature.count.txt.gz
+result/
+└── batch3
+    └── AML025
+        ├── AML025_rep1_vs_ERWOOD_hp.result.count.txt
+        ├── AML025_rep1_vs_ERWOOD_hp.result.count.txt.all
+        ├── AML025_rep1_vs_ERWOOD_hp.result.count.txt.allmature
+        ├── AML025_rep2_vs_ERWOOD_hp.result.count.txt
+        ├── AML025_rep2_vs_ERWOOD_hp.result.count.txt.all
+        └── AML025_rep2_vs_ERWOOD_hp.result.count.txt.allmature
 ```
 
 ## Versioning
@@ -229,17 +196,15 @@ We use [SemVer](http://semver.org/) for versioning. For the versions available, 
 
 ## Authors
 
-* **Miao Sun** - Original Author and Development
-* **Yang Shen** - Snakemake supported
+* **Yang Shen** - Develope the pipeline
 
 ## Contact
 
 Please contact us if you find bugs, have suggestions, need help etc. You can either use our mailing list or send us an email:
 
 * [Yang Shen](mailto:sheny@gis.a-star.edu.sg)
-* [Niranjan Nagarajan](mailto:nagarajann@gis.a-star.edu.sg)
 
-PARCEL is developed in the Genome Institute of Singapore
+shRNAscreen is developed in the Genome Institute of Singapore
 
 ## License
 
