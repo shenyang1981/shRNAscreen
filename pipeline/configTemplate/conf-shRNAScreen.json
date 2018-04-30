@@ -1,0 +1,20 @@
+{
+    "SAMPLEINFO": "${SHRNASCREEN_ANADIR}/sampleList.txt",
+    "INPUTDIR": "${SHRNASCREEN_ANADIR}/input/",
+    "HPREADS": "${SHRNASCREEN_ANADIR}/hpreads/",
+    "RESULT": "${SHRNASCREEN_ANADIR}/result/",
+
+    "_comments": "annotation files",
+    "HPID": "${HPID}",
+    "HAIRPIN": "${HAIRPIN}",
+
+    "_comments": "parameters",
+    "ANAID": "${ANAID}",
+    "DISCUT": "2",
+    "BATCHSIZE": "5000",
+
+    "_comments": "scripts for processing reads",
+    "EXTRACTMATURE": "${SHRNASCREEN_SCRIPTS}/extractMatureSimple.sh",
+    "SUMHPCOUNT": "${SHRNASCREEN_SCRIPTS}/summaryShCount.R",
+}
+
