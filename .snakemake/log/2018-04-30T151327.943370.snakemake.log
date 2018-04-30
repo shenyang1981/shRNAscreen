@@ -1,0 +1,59 @@
+Building DAG of jobs...
+Relative file path './result/batch3/AML025/AML025_rep1_vs_ERWOOD_hp.result.count.txt' starts with './'. This is redundant and strongly discouraged. It can also lead to inconsistent results of the file-matching approach used by Snakemake. You can simply omit the './' for relative file paths.
+Relative file path './result/batch3/AML025/AML025_rep2_vs_ERWOOD_hp.result.count.txt' starts with './'. This is redundant and strongly discouraged. It can also lead to inconsistent results of the file-matching approach used by Snakemake. You can simply omit the './' for relative file paths.
+Relative file path './hpreads/AML025/AML025_rep1.mature.count.txt.gz' starts with './'. This is redundant and strongly discouraged. It can also lead to inconsistent results of the file-matching approach used by Snakemake. You can simply omit the './' for relative file paths.
+Relative file path './result/batch3/AML025/AML025_rep1_vs_ERWOOD_hp.result.count.txt' starts with './'. This is redundant and strongly discouraged. It can also lead to inconsistent results of the file-matching approach used by Snakemake. You can simply omit the './' for relative file paths.
+Relative file path './hpreads/AML025/AML025_rep2.mature.count.txt.gz' starts with './'. This is redundant and strongly discouraged. It can also lead to inconsistent results of the file-matching approach used by Snakemake. You can simply omit the './' for relative file paths.
+Relative file path './result/batch3/AML025/AML025_rep2_vs_ERWOOD_hp.result.count.txt' starts with './'. This is redundant and strongly discouraged. It can also lead to inconsistent results of the file-matching approach used by Snakemake. You can simply omit the './' for relative file paths.
+Relative file path './input/AML025/AML025_rep1.fastq.gz' starts with './'. This is redundant and strongly discouraged. It can also lead to inconsistent results of the file-matching approach used by Snakemake. You can simply omit the './' for relative file paths.
+Relative file path './hpreads/AML025/AML025_rep1.mature.count.txt.gz' starts with './'. This is redundant and strongly discouraged. It can also lead to inconsistent results of the file-matching approach used by Snakemake. You can simply omit the './' for relative file paths.
+Relative file path './input/AML025/AML025_rep2.fastq.gz' starts with './'. This is redundant and strongly discouraged. It can also lead to inconsistent results of the file-matching approach used by Snakemake. You can simply omit the './' for relative file paths.
+Relative file path './hpreads/AML025/AML025_rep2.mature.count.txt.gz' starts with './'. This is redundant and strongly discouraged. It can also lead to inconsistent results of the file-matching approach used by Snakemake. You can simply omit the './' for relative file paths.
+Using shell: /bin/bash
+Provided cores: 32
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	2	extractMature
+	1	final
+	2	mapToHairpin
+	5
+
+rule extractMature:
+    input: ./input/AML025/AML025_rep1.fastq.gz
+    output: ./hpreads/AML025/AML025_rep1.mature.count.txt.gz
+    jobid: 3
+    wildcards: seqbatch=AML025, id=AML025_rep1
+
+
+rule extractMature:
+    input: ./input/AML025/AML025_rep2.fastq.gz
+    output: ./hpreads/AML025/AML025_rep2.mature.count.txt.gz
+    jobid: 4
+    wildcards: seqbatch=AML025, id=AML025_rep2
+
+Finished job 4.
+1 of 5 steps (20%) done
+
+rule mapToHairpin:
+    input: ./hpreads/AML025/AML025_rep2.mature.count.txt.gz
+    output: ./result/batch3/AML025/AML025_rep2_vs_ERWOOD_hp.result.count.txt
+    jobid: 2
+    wildcards: seqbatch=AML025, id=AML025_rep2
+    threads: 24
+
+Finished job 3.
+2 of 5 steps (40%) done
+Error in rule mapToHairpin:
+    jobid: 2
+    output: ./result/batch3/AML025/AML025_rep2_vs_ERWOOD_hp.result.count.txt
+
+RuleException:
+CalledProcessError in line 53 of /home/shenyan/prog/Torsten/pipeline/counthpreads.sk:
+Command ' source ~/.bashrc; set -euo pipefail; 
+			Rscript summaryShCount.R -args ./hpreads/AML025/AML025_rep2.mature.count.txt.gz annotation/hairpin_ERWOOD_good.txt ./result/batch3/AML025/AML025_rep2_vs_ERWOOD_hp.result.count.txt 2 24 5000 ' returned non-zero exit status 2.
+  File "/home/shenyan/prog/Torsten/pipeline/counthpreads.sk", line 53, in __rule_mapToHairpin
+  File "/home/shenyan/miniconda3/lib/python3.6/concurrent/futures/thread.py", line 56, in run
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Complete log: /home/shenyan/prog/Torsten/.snakemake/log/2018-04-30T151327.943370.snakemake.log

@@ -1,0 +1,108 @@
+from snakemake.utils import R
+from os.path import join
+import csv
+
+# simulate a bash login shell, see https://bitbucket.org/johanneskoester/snakemake/wiki/FAQ
+shell.executable("/bin/bash")
+#
+# # "unofficial bash strict mode" http://www.redsymbol.net/articles/unofficial-bash-strict-mode/
+shell.prefix("source ~/.bashrc; set -euo pipefail;")
+#
+#
+
+# Globals ---------------------------------------------------------------------
+
+# get the seqbatch : libid pairs for given comparebatch id
+LIBIDS = []
+SEQBATCHS = []
+SEQDIR = []
+SEQFILES = []
+sampleinfo = open(config["SAMPLEINFO"],"r",newline='')
+for line in sampleinfo:
+	allelems = line.strip().split("\t");
+	if allelems[6] == config["COMPAREBATCH"]:
+		LIBIDS.append(allelems[1])
+		SEQBATCHS.append(allelems[4])
+		SEQDIR.append(allelems[8])
+		SEQFILES.append(allelems[8] + allelems[7])
+#print(LIBIDS)
+#print(SEQBATCHS)
+
+# get condition and id pair
+CONDITIONS = {}
+sampleinfo = open(config["SAMPLEINFO"],"r",newline='')
+for line in sampleinfo:
+	CONDITIONS[line.split("\t")[1]] = line.split("\t")[2]
+
+
+
+# define function to convert id to sample name
+
+
+#getSampleInfo <- function(configfile,id,querykey) {
+#	mydata = read.table(configfile,header=T,sep="\t");
+#	result = mydata[mydata[,"LibID"]==id,querykey];
+#	return(result);
+#    # R code
+#}
+#
+#
+
+# snakemake -np  -s cutadaptor.sk --configfile conf-cutadaptor.json  --dag |  dot -Tsvg > dag.svg
+
+def get_bedgraph_files(wc):
+	return [config["BEDGRAPHDIR"] + config["COMPAREBATCH"] + "/" + CONDITIONS[LIBIDS[k]] + '_{}'.format(LIBIDS[k]) + '_{}_nor.bedgraph.gz'.format(SEQBATCHS[k]) for k in range(len(LIBIDS))]
+	
+rule final:
+	input: 
+		#expand("/home/sheny/prog/parcel/Yeast/Fastq/MUX3857/{id}.fastq.gz", zip, id=LIBIDS, seqbatch=SEQBATCHS)
+		#expand(config["TRIMDIR"] + '{id}.trim.fastq', zip, id=LIBIDS, seqbatch=SEQBATCHS)
+		#expand(config["TRIMDIR"] + 'read.trim.{id}.log.sum', zip, id=LIBIDS, seqbatch=SEQBATCHS)
+		#expand(config["TRIMDIR"] + 'read.trim.{id}.log', zip, id=LIBIDS, seqbatch=SEQBATCHS)
+		#expand(config["MAPBAMS"] + '{id}.trim.fastq.genome_mapping_best_sort.bam', zip, id=LIBIDS, seqbatch=SEQBATCHS),
+		#config["TRIMDIR"] + "trimSummary.txt",
+		#config["MAPBAMS"] + "mapSummary.txt",
+		#expand(config["TRIMDIR"] + "{seqbatch}/" + "read.trim.{id}.log.sum", zip, seqbatch = SEQBATCHS, id = LIBIDS),
+		expand(config["RESULT"] + config["COMPAREBATCH"] + "/" + "{seqbatch}/" + "{id}_vs_" +config["HPID"] + "_hp.result.count.txt",zip,id=LIBIDS,seqbatch=SEQBATCHS)
+		#config["COVDIR"] + config["COMPAREBATCH"] + "/" + "allcov.wide.min" + config["COVMIN"] + ".txt.gz",
+		#config["COVDIR"] + config["COMPAREBATCH"] + "/" + "allgenecov.wide" + ".txt.gz",
+		#config["QUALCHECKDIR"] + config["COMPAREBATCH"] + "/" + "processingSummary.xls",
+		#get_bedgraph_files
+		#config["COVDIR"] + "allcov.wide.min100" + ".txt.gz",
+		#condition = lambda wildcards: CONDITIONS[wildcards.id],
+		#expand(config["BEDGRAPHDIR"] + CONDITIONS[{id}] + '_{id}.bedgraph.gz', zip, zip, id=LIBIDS, seqbatch=SEQBATCHS)
+		#expand(config["BEDGRAPHDIR"] + CONDITIONS.get("{id}") + '_{id}.bedgraph.gz', zip, id=LIBIDS, seqbatch=SEQBATCHS)
+		#expand(config["BEDGRAPHDIR"] + '{id}.bedgraph.gz',zip, id=LIBIDS, seqbatch=SEQBATCHS)
+		#config["BEDGRAPHDIR"] + '{id}.bedgraph.gz'
+		#"./test.txt"
+
+rule extractMature:
+	input: 
+		config["INPUTDIR"] + "{seqbatch}/" + "{id}.fastq.gz"
+		#get_input_files
+	output: 
+		config["TRIMDIR"] + "{seqbatch}/" + "{id}.mature.count.txt.gz"
+	params:
+		hpid=config["HPID"]
+
+	threads: 1
+	shell:
+		"""
+			bash {config[EXTRACTMATURE]} {input} {params.hpid} {output}
+		"""
+
+
+rule mapToHairpin:
+	input:
+		rules.extractMature.output
+	output:
+		config["RESULT"] + config["COMPAREBATCH"] + "/" + "{seqbatch}/" + "{id}_vs_" +config["HPID"] + "_hp.result.count.txt"
+	params:
+		hpseq = config["HAIRPIN"], eddist = config["DISCUT"], numseqs = config["BATCHSIZE"]
+	threads:
+		24
+	shell:
+		"""
+			Rscript {config[SUMHPCOUNT]} -args {input} {params.hpseq} {output} {params.eddist} {threads} {params.numseqs}
+		"""
+

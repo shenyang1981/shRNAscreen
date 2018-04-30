@@ -1,0 +1,47 @@
+Building DAG of jobs...
+Relative file path './result/batch3/AML025/AML025_rep1_vs_ERWOOD_hp.result.count.txt' starts with './'. This is redundant and strongly discouraged. It can also lead to inconsistent results of the file-matching approach used by Snakemake. You can simply omit the './' for relative file paths.
+Relative file path './result/batch3/AML025/AML025_rep2_vs_ERWOOD_hp.result.count.txt' starts with './'. This is redundant and strongly discouraged. It can also lead to inconsistent results of the file-matching approach used by Snakemake. You can simply omit the './' for relative file paths.
+Relative file path './hpreads/AML025/AML025_rep2.mature.count.txt.gz' starts with './'. This is redundant and strongly discouraged. It can also lead to inconsistent results of the file-matching approach used by Snakemake. You can simply omit the './' for relative file paths.
+Relative file path './result/batch3/AML025/AML025_rep2_vs_ERWOOD_hp.result.count.txt' starts with './'. This is redundant and strongly discouraged. It can also lead to inconsistent results of the file-matching approach used by Snakemake. You can simply omit the './' for relative file paths.
+Relative file path './hpreads/AML025/AML025_rep1.mature.count.txt.gz' starts with './'. This is redundant and strongly discouraged. It can also lead to inconsistent results of the file-matching approach used by Snakemake. You can simply omit the './' for relative file paths.
+Relative file path './result/batch3/AML025/AML025_rep1_vs_ERWOOD_hp.result.count.txt' starts with './'. This is redundant and strongly discouraged. It can also lead to inconsistent results of the file-matching approach used by Snakemake. You can simply omit the './' for relative file paths.
+Relative file path './input/AML025/AML025_rep2.fastq.gz' starts with './'. This is redundant and strongly discouraged. It can also lead to inconsistent results of the file-matching approach used by Snakemake. You can simply omit the './' for relative file paths.
+Relative file path './hpreads/AML025/AML025_rep2.mature.count.txt.gz' starts with './'. This is redundant and strongly discouraged. It can also lead to inconsistent results of the file-matching approach used by Snakemake. You can simply omit the './' for relative file paths.
+Relative file path './input/AML025/AML025_rep1.fastq.gz' starts with './'. This is redundant and strongly discouraged. It can also lead to inconsistent results of the file-matching approach used by Snakemake. You can simply omit the './' for relative file paths.
+Relative file path './hpreads/AML025/AML025_rep1.mature.count.txt.gz' starts with './'. This is redundant and strongly discouraged. It can also lead to inconsistent results of the file-matching approach used by Snakemake. You can simply omit the './' for relative file paths.
+Using shell: /bin/bash
+Provided cores: 32
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	final
+	2	mapToHairpin
+	3
+
+rule mapToHairpin:
+    input: ./hpreads/AML025/AML025_rep1.mature.count.txt.gz
+    output: ./result/batch3/AML025/AML025_rep1_vs_ERWOOD_hp.result.count.txt
+    jobid: 2
+    wildcards: seqbatch=AML025, id=AML025_rep1
+    threads: 24
+
+Finished job 2.
+1 of 3 steps (33%) done
+
+rule mapToHairpin:
+    input: ./hpreads/AML025/AML025_rep2.mature.count.txt.gz
+    output: ./result/batch3/AML025/AML025_rep2_vs_ERWOOD_hp.result.count.txt
+    jobid: 1
+    wildcards: seqbatch=AML025, id=AML025_rep2
+    threads: 24
+
+Finished job 1.
+2 of 3 steps (67%) done
+
+localrule final:
+    input: ./result/batch3/AML025/AML025_rep1_vs_ERWOOD_hp.result.count.txt, ./result/batch3/AML025/AML025_rep2_vs_ERWOOD_hp.result.count.txt
+    jobid: 0
+
+Finished job 0.
+3 of 3 steps (100%) done
+Complete log: /home/shenyan/prog/Torsten/.snakemake/log/2018-04-30T151429.245608.snakemake.log

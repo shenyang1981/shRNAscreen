@@ -1,0 +1,20 @@
+{
+    "SAMPLEINFO": "./input/sampleList.txt",
+    
+    "INPUTDIR": "./input/",
+    "HPREADS": "./hpreads/",
+    "RESULT": "./result/",
+
+    "_comments": "annotation files",
+    "HPID": "ERWOOD",
+    "HAIRPIN": "annotation/hairpin_ERWOOD_good.txt",
+    
+    "_comments": "parameters",
+    "ANAID": "batch3",
+    "DISCUT": "2",
+    "BATCHSIZE": "5000",
+
+    "_comments": "scripts for processing reads",
+    "EXTRACTMATURE": "extractMatureSimple.sh",
+    "SUMHPCOUNT": "summaryShCount.R",
+}

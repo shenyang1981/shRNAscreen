@@ -1,0 +1,3 @@
+Species	LibID	SeqBatch	AnalyticID
+Mouse	AML025_rep1	AML025	batch3
+Mouse	AML025_rep2	AML025	batch3
